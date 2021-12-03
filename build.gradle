@@ -40,7 +40,6 @@ description 'Web3j base project.'
     'javadoc',
     'publish',
     'repositories',
-    'spotless'
 ].each { buildScript ->
     download {
         src "https://raw.githubusercontent.com/web3j/build-tools/master/gradle/$buildScript/build.gradle"
@@ -57,7 +56,6 @@ allprojects {
             'java',
             'javadoc',
             'repositories',
-            'spotless'
         ].each { buildScript ->
             from("$rootDir/gradle/$buildScript/build.gradle")
         }

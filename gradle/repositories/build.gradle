@@ -1,5 +1,22 @@
 repositories {
+    maven {
+        url "http://nexus.huobidev.com:8081/repository/maven-releases/"
+    }
+
+    maven {
+        url = uri('http://nexus.huobidev.com:8081/repository/maven-public/')
+    }
+
+    maven {
+        url = uri('http://nexus.huobidev.com:8081/repository/maven-snapshots')
+    }
+
+    maven {
+        url = uri('http://maven.aliyun.com/nexus/content/repositories/central/')
+    }
+
     mavenCentral()
+    mavenLocal()
     jcenter()
     maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
