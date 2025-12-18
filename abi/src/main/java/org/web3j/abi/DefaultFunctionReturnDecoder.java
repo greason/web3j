@@ -12,6 +12,7 @@
  */
 package org.web3j.abi;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -112,9 +113,11 @@ public class DefaultFunctionReturnDecoder extends FunctionReturnDecoder {
                     result =
                             TypeDecoder.decodeStaticStruct(
                                     input, hexStringDataOffset, typeReference);
-                    offset +=
-                            staticStructNestedPublicFieldsFlatList(classType).size()
-                                    * MAX_BYTE_LENGTH_FOR_HEX_STRING;
+                    int fieldSize = staticStructNestedPublicFieldsFlatList(classType).size();
+                    if (fieldSize == 0) {
+                        fieldSize = ((ParameterizedType)typeReference.getType()).getActualTypeArguments().length;
+                    }
+                    offset += fieldSize * MAX_BYTE_LENGTH_FOR_HEX_STRING;
                 } else if (StaticArray.class.isAssignableFrom(classType)) {
                     int length =
                             Integer.parseInt(
@@ -129,13 +132,20 @@ public class DefaultFunctionReturnDecoder extends FunctionReturnDecoder {
                         offset += MAX_BYTE_LENGTH_FOR_HEX_STRING;
                     } else if (StaticStruct.class.isAssignableFrom(
                             getParameterizedTypeFromArray(typeReference))) {
-                        offset +=
-                                staticStructNestedPublicFieldsFlatList(
-                                                        getParameterizedTypeFromArray(
-                                                                typeReference))
-                                                .size()
-                                        * length
-                                        * MAX_BYTE_LENGTH_FOR_HEX_STRING;
+                        int fieldSize = staticStructNestedPublicFieldsFlatList(
+                            getParameterizedTypeFromArray(typeReference)).size();
+                        try {
+                            if (fieldSize == 0
+                                && ((ParameterizedType) typeReference.getType()).getActualTypeArguments()[0] instanceof ParameterizedType) {
+                                java.lang.reflect.Type type =
+                                    ((ParameterizedType) typeReference.getType()).getActualTypeArguments()[0];
+                                fieldSize = ((ParameterizedType) type.getClass()
+                                    .getGenericSuperclass()).getActualTypeArguments().length;
+                            }
+                        } catch (Exception e) {
+                            System.out.printf("StaticArray -> StaticStruct error: %s", e.getMessage());
+                        }
+                        offset += fieldSize * length * MAX_BYTE_LENGTH_FOR_HEX_STRING;
                     } else if (Utf8String.class.isAssignableFrom(
                             getParameterizedTypeFromArray(typeReference))) {
                         offset += MAX_BYTE_LENGTH_FOR_HEX_STRING;

@@ -121,6 +121,19 @@ public class Utils {
                                         "TypeReferenced struct must contain a constructor with types that extend Type"));
     }
 
+    public static Constructor findStructConstructor2(Class classType) {
+        return Arrays.stream(classType.getDeclaredConstructors())
+            .filter(
+                declaredConstructor ->
+                    Arrays.stream(declaredConstructor.getParameterTypes())
+                        .allMatch(Type[].class::isAssignableFrom))
+            .findAny()
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        "TypeReferenced struct must contain a constructor with Type[] that extend Type"));
+    }
+
     static String getSimpleTypeName(Class<?> type) {
         String simpleName = type.getSimpleName().toLowerCase();
 
